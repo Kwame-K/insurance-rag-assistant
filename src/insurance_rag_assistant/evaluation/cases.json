@@ -1,0 +1,438 @@
+[
+  {
+    "case_id": "property_flood_exclusion_en",
+    "question": "What exclusions apply to flood damage under the commercial property policy?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1",
+      "exclusions_reference_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "exclud",
+      "endorsement"
+    ],
+    "must_not_include_terms": [
+      "earthquake"
+    ]
+  },
+  {
+    "case_id": "property_flood_endorsement_en",
+    "question": "Can flood coverage be added to the commercial property policy?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "flood",
+      "endorsement",
+      "underwriting approval"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "cyber_submission_requirements_en",
+    "question": "What information is required before underwriting a cyber insurance submission?",
+    "filters": {
+      "coverage": "cyber",
+      "document_type": "underwriting_guide",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "legal name",
+      "annual gross revenue",
+      "five year cyber incident",
+      "existing cyber insurance"
+    ],
+    "must_not_include_terms": [
+      "coverage is excluded"
+    ]
+  },
+  {
+    "case_id": "cyber_mfa_referral_en",
+    "question": "When must a cyber insurance submission be referred because of multi-factor authentication?",
+    "filters": {
+      "coverage": "cyber",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1",
+      "exclusions_reference_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "referred",
+      "senior underwriter",
+      "multi factor authentication",
+      "remote access"
+    ],
+    "must_not_include_terms": [
+      "policy exclusion"
+    ]
+  },
+  {
+    "case_id": "quebec_eligibility_fr",
+    "question": "Quels sont les critères d'admissibilité pour une police commerciale au Québec ?",
+    "filters": {
+      "coverage": "commercial_property",
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expected_citation_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "risques généralement admissibles",
+      "critères minimaux",
+      "souscripteur principal"
+    ],
+    "must_not_include_terms": [
+      "assurance cyber"
+    ]
+  },
+  {
+    "case_id": "quebec_water_deductible_fr",
+    "question": "Quelle franchise minimale s'applique à un risque ayant deux sinistres liés à l'eau ?",
+    "filters": {
+      "coverage": "commercial_property",
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expected_citation_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "5 000",
+      "sinistres liés à l eau"
+    ],
+    "must_not_include_terms": [
+      "2 500"
+    ]
+  },
+  {
+    "case_id": "deductible_comparison_en",
+    "question": "Compare the deductible requirements for commercial property and cyber coverage.",
+    "filters": {},
+    "expected_document_ids": [
+      "commercial_property_policy_v1",
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1",
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "commercial property",
+      "cyber",
+      "2 500",
+      "5 000",
+      "10 000"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "aviation_absence_en",
+    "question": "What aviation liability limit applies to aircraft operators?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "property_water_damage_en",
+    "question": "Is water damage caused by a sudden plumbing leak covered under the commercial property policy?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "sudden and accidental",
+      "plumbing",
+      "covered"
+    ],
+    "must_not_include_terms": [
+      "flood coverage"
+    ]
+  },
+  {
+    "case_id": "property_gradual_leak_en",
+    "question": "Is repeated seepage or leakage over more than 14 days covered?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1",
+      "exclusions_reference_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "14 days",
+      "not covered"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "property_flood_deductible_en",
+    "question": "What deductible applies to flood losses when flood coverage has been purchased?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "10 000",
+      "deductible",
+      "flood"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "property_vacancy_en",
+    "question": "What happens if a commercial building has been vacant for more than 60 consecutive days?",
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expected_citation_document_ids": [
+      "commercial_property_policy_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "60 consecutive days",
+      "not liable",
+      "vandalism"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "cyber_mfa_requirement_en",
+    "question": "When is multi-factor authentication required for cyber insurance underwriting?",
+    "filters": {
+      "coverage": "cyber",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "5 million",
+      "multi factor authentication",
+      "remote access"
+    ],
+    "must_not_include_terms": [
+      "policy exclusion"
+    ]
+  },
+  {
+    "case_id": "cyber_referral_en",
+    "question": "Which cyber insurance submissions must be referred to a senior underwriter?",
+    "filters": {
+      "coverage": "cyber",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "senior underwriter",
+      "50 million",
+      "ransomware",
+      "36 months"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "cyber_deductible_en",
+    "question": "What is the minimum cyber deductible for an organization with annual revenue of CAD 15 million?",
+    "filters": {
+      "coverage": "cyber",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "10 000"
+    ],
+    "must_not_include_terms": [
+      "5 000"
+    ]
+  },
+  {
+    "case_id": "exclusion_vs_underwriting_en",
+    "question": "What is the difference between a policy exclusion and an underwriting rule?",
+    "filters": {
+      "document_type": "exclusions_reference",
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "exclusions_reference_v1"
+    ],
+    "expected_citation_document_ids": [
+      "exclusions_reference_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "policy exclusion",
+      "underwriting rule",
+      "coverage"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "quebec_referral_fr",
+    "question": "Quels risques commerciaux doivent être soumis à un souscripteur principal au Québec ?",
+    "filters": {
+      "coverage": "commercial_property",
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expected_citation_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "souscripteur principal",
+      "10 millions",
+      "sinistres liés à l eau"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "quebec_ineligible_risks_fr",
+    "question": "Quels risques commerciaux ne sont généralement pas admissibles au Québec ?",
+    "filters": {
+      "coverage": "commercial_property",
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expected_citation_document_ids": [
+      "underwriting_appetite_quebec_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "raffineries",
+      "explosifs",
+      "180 jours"
+    ],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "cyber_submission_cross_lingual_fr",
+    "question": "Quelles informations sont requises avant de souscrire une assurance cyber ?",
+    "filters": {
+      "coverage": "cyber"
+    },
+    "expected_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expected_citation_document_ids": [
+      "cyber_underwriting_guide_v1"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "marine_liability_absence_en",
+    "question": "What marine liability limit applies to cargo vessel operators?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  }
+]
