@@ -11,10 +11,7 @@ def test_normalization_handles_unicode_dashes() -> None:
 
 
 def test_normalization_handles_currency_punctuation() -> None:
-    assert (
-        normalize_evaluation_text("CAD 2,500")
-        == "cad 2 500"
-    )
+    assert normalize_evaluation_text("CAD 2,500") == "cad 2 500"
 
 
 def test_normalization_handles_accents() -> None:

@@ -34,9 +34,7 @@ class GroqStructuredLLMClient:
         response_schema: dict[str, Any],
     ) -> dict[str, Any]:
         """Generate JSON validated later by Pydantic and citation checks."""
-        required_fields = ", ".join(
-            response_schema.get("required", [])
-        )
+        required_fields = ", ".join(response_schema.get("required", []))
 
         response_contract = f"""
 Return exactly one valid JSON object and no Markdown.
@@ -83,10 +81,7 @@ Rules for the JSON object:
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        f"{system_prompt}\n\n"
-                        f"{response_contract}"
-                    ),
+                    "content": (f"{system_prompt}\n\n{response_contract}"),
                 },
                 {
                     "role": "user",

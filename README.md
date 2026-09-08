@@ -150,7 +150,7 @@ insurance-rag-assistant/
 ### Installation
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Kwame-K/insurance-rag-assistant.git
 cd insurance-rag-assistant
 uv sync --all-groups
 ```

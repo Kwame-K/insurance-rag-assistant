@@ -332,7 +332,6 @@ def evaluate(
         citation_precision = generation_report["citation_document_precision"]
         answer_constraint_rate = generation_report["answer_constraint_pass_rate"]
 
-
         typer.echo("\nGeneration evaluation:")
         typer.echo(
             f"Grounded answer rate: {grounded_rate:.3f}"
@@ -384,4 +383,5 @@ def _display_rag_response(response: RAGResponse) -> None:
                 f"  Section: {citation.section_title} ({location})\n"
                 f'  Supporting quote: "{citation.quote}"'
             )
-            if citation.retrieval_score is not None: typer.echo(f"  Retrieval score: {citation.retrieval_score:.3f}")
+            if citation.retrieval_score is not None:
+                typer.echo(f"  Retrieval score: {citation.retrieval_score:.3f}")

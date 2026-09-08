@@ -33,28 +33,25 @@ class EvaluationCase(BaseModel):
     must_not_include_terms: list[str] = Field(default_factory=list)
 
 
-
 class SearchService(Protocol):
     """Minimal search interface needed by the evaluator."""
 
     def search(self, search_query: SearchQuery) -> SearchResult:
         """Return ranked passages for a query."""
 
+
 def normalize_evaluation_text(text: str) -> str:
     """Normalize text for resilient deterministic term matching."""
     decomposed = unicodedata.normalize("NFKD", text)
 
     without_diacritics = "".join(
-        character
-        for character in decomposed
-        if not unicodedata.combining(character)
+        character for character in decomposed if not unicodedata.combining(character)
     )
 
     normalized = without_diacritics.casefold()
     normalized = re.sub(r"[\W_]+", " ", normalized)
 
     return " ".join(normalized.split())
-
 
 
 def load_evaluation_cases(path: Path) -> list[EvaluationCase]:
@@ -208,6 +205,7 @@ def write_evaluation_report(
         encoding="utf-8",
     )
 
+
 def evaluate_generation(
     search_service: SearchService,
     answer_generator: GroundedAnswerGenerator,
@@ -236,8 +234,7 @@ def evaluate_generation(
             expected_abstention_cases += 1
 
         has_answer_constraints = bool(
-            case.must_include_terms
-            or case.must_not_include_terms
+            case.must_include_terms or case.must_not_include_terms
         )
 
         search_result = search_service.search(
@@ -280,9 +277,7 @@ def evaluate_generation(
                     ),
                     "citation_count": 0,
                     "must_include_terms": case.must_include_terms,
-                    "must_not_include_terms": (
-                        case.must_not_include_terms
-                    ),
+                    "must_not_include_terms": (case.must_not_include_terms),
                     "missing_required_terms": [],
                     "present_forbidden_terms": [],
                     "answer_constraints_passed": False,
@@ -294,13 +289,10 @@ def evaluate_generation(
             continue
 
         citation_document_ids = [
-            citation.document_id
-            for citation in response.citations
+            citation.document_id for citation in response.citations
         ]
 
-        expected_citation_ids = set(
-            case.expected_citation_document_ids
-        )
+        expected_citation_ids = set(case.expected_citation_document_ids)
 
         correct_citation_count = sum(
             document_id in expected_citation_ids
@@ -310,9 +302,7 @@ def evaluate_generation(
         total_citations += len(citation_document_ids)
         expected_document_citations += correct_citation_count
 
-        grounding_matches_expectation = (
-            response.grounded == case.expected_grounded
-        )
+        grounding_matches_expectation = response.grounded == case.expected_grounded
 
         if case.expected_grounded and response.grounded:
             correctly_grounded_cases += 1
@@ -320,10 +310,7 @@ def evaluate_generation(
         if not case.expected_grounded and not response.grounded:
             correctly_abstained_cases += 1
 
-        normalized_answer = normalize_evaluation_text(
-            response.answer
-        )
-
+        normalized_answer = normalize_evaluation_text(response.answer)
 
         missing_required_terms = [
             term
@@ -331,23 +318,18 @@ def evaluate_generation(
             if normalize_evaluation_text(term) not in normalized_answer
         ]
 
-
         present_forbidden_terms = [
             term
             for term in case.must_not_include_terms
             if normalize_evaluation_text(term) in normalized_answer
         ]
 
-
         answer_constraints_passed = (
-            not missing_required_terms
-            and not present_forbidden_terms
+            not missing_required_terms and not present_forbidden_terms
         )
 
         if has_answer_constraints:
-            answer_constraint_results.append(
-                answer_constraints_passed
-            )
+            answer_constraint_results.append(answer_constraints_passed)
 
         case_results.append(
             {
@@ -357,30 +339,17 @@ def evaluate_generation(
                 "actual_grounded": response.grounded,
                 "confidence": response.confidence,
                 "answer": response.answer,
-                "insufficient_context_reason": (
-                    response.insufficient_context_reason
-                ),
+                "insufficient_context_reason": (response.insufficient_context_reason),
                 "citation_document_ids": citation_document_ids,
-                "expected_citation_document_ids": sorted(
-                    expected_citation_ids
-                ),
+                "expected_citation_document_ids": sorted(expected_citation_ids),
                 "citation_count": len(citation_document_ids),
                 "must_include_terms": case.must_include_terms,
-                "must_not_include_terms": (
-                    case.must_not_include_terms
-                ),
+                "must_not_include_terms": (case.must_not_include_terms),
                 "missing_required_terms": missing_required_terms,
                 "present_forbidden_terms": present_forbidden_terms,
-                "answer_constraints_passed": (
-                    answer_constraints_passed
-                ),
-                "grounding_matches_expectation": (
-                    grounding_matches_expectation
-                ),
-                "passed": (
-                    grounding_matches_expectation
-                    and answer_constraints_passed
-                ),
+                "answer_constraints_passed": (answer_constraints_passed),
+                "grounding_matches_expectation": (grounding_matches_expectation),
+                "passed": (grounding_matches_expectation and answer_constraints_passed),
             }
         )
 
@@ -402,22 +371,15 @@ def evaluate_generation(
             else None
         ),
         "citation_document_precision": (
-            expected_document_citations / total_citations
-            if total_citations
-            else None
+            expected_document_citations / total_citations if total_citations else None
         ),
         "answer_constraint_pass_rate": (
-            sum(answer_constraint_results)
-            / len(answer_constraint_results)
+            sum(answer_constraint_results) / len(answer_constraint_results)
             if answer_constraint_results
             else None
         ),
         "overall_grounding_accuracy": (
-            (
-                correctly_grounded_cases
-                + correctly_abstained_cases
-            )
-            / total_cases
+            (correctly_grounded_cases + correctly_abstained_cases) / total_cases
             if total_cases
             else None
         ),

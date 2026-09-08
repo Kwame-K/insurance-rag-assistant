@@ -69,12 +69,8 @@ def test_answer_generator_rejects_unknown_citation_chunk() -> None:
         raise AssertionError("Expected an invalid citation to be rejected.")
 
 
-
 def test_normalize_citation_text_handles_unicode_variants() -> None:
     source = "Five-year cyber incident and insurance claims history."
     generated = "Five‑year cyber incident and insurance claims history."
 
-    assert (
-        normalize_citation_text(generated)
-        == normalize_citation_text(source)
-    )
+    assert normalize_citation_text(generated) == normalize_citation_text(source)
