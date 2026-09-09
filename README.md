@@ -1,4 +1,4 @@
-# Insurance RAG Assistant
+# Insurance Knowledge Agent
 
 [![Continuous Integration](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
