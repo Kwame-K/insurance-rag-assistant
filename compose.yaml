@@ -1,0 +1,24 @@
+services:
+  insurance-rag-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: insurance-rag-assistant:local
+    container_name: insurance-rag-assistant
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL_NAME: ${GROQ_MODEL_NAME:-openai/gpt-oss-20b}
+      HF_HOME: /app/.cache/huggingface
+      SENTENCE_TRANSFORMERS_HOME: /app/.cache/sentence-transformers
+    ports:
+      - "8001:8001"
+    volumes:
+      - rag_vector_store:/app/vector_store
+      - rag_artifacts:/app/artifacts
+      - rag_model_cache:/app/.cache
+    restart: unless-stopped
+
+volumes:
+  rag_vector_store:
+  rag_artifacts:
+  rag_model_cache:
