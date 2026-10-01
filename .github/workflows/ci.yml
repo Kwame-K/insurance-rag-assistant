@@ -46,3 +46,17 @@ jobs:
 
       - name: Run tests
         run: uv run pytest
+
+services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: rag
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: knowledge_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rag -d knowledge_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL_TEST: postgresql://rag:test@localhost:5432/knowledge_test

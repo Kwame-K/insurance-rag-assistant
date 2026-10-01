@@ -1,4 +1,4 @@
-from insurance_rag_assistant.config import MIN_RETRIEVAL_SCORE
+from insurance_rag_assistant.config import MIN_RETRIEVAL_SCORE, ABSTENTION_TOP_SCORE
 from insurance_rag_assistant.models.retrieval import (
     SearchQuery,
     SearchResult,
@@ -6,23 +6,24 @@ from insurance_rag_assistant.models.retrieval import (
 from insurance_rag_assistant.retrieval.embedder import (
     MultilingualE5Embedder,
 )
-from insurance_rag_assistant.retrieval.vector_store import (
-    LocalQdrantVectorStore,
-)
+from insurance_rag_assistant.retrieval.factory import create_vector_store
+from insurance_rag_assistant.retrieval.protocols import VectorStore
 
 
 class SemanticSearchService:
     """Coordinate query embedding, vector retrieval, and relevance gating."""
-
+          
     def __init__(
         self,
         embedder: MultilingualE5Embedder | None = None,
-        vector_store: LocalQdrantVectorStore | None = None,
+        vector_store: VectorStore | None = None,
         min_retrieval_score: float = MIN_RETRIEVAL_SCORE,
+        abstention_score: float = ABSTENTION_TOP_SCORE,
     ) -> None:
         self.embedder = embedder or MultilingualE5Embedder()
-        self.vector_store = vector_store or LocalQdrantVectorStore()
+        self.vector_store = vector_store or create_vector_store()
         self.min_retrieval_score = min_retrieval_score
+        self.abstention_score = abstention_score
 
     def search(self, search_query: SearchQuery) -> SearchResult:
         """Embed a user question and retrieve grounded source passages."""
@@ -35,12 +36,16 @@ class SemanticSearchService:
             min_score=self.min_retrieval_score,
         )
 
+        sufficient = bool(results) and results[0].score >= self.abstention_score
         return SearchResult(
             query=search_query,
             results=results,
-            retrieval_sufficient=bool(results),
+            retrieval_sufficient=sufficient,
         )
+
 
     def close(self) -> None:
         """Close underlying local vector-store resources."""
         self.vector_store.close()
+
+    

@@ -1,0 +1,134 @@
+[
+  {
+    "case_id": "travel_absence_en",
+    "question": "What is the trip cancellation deductible under a travel insurance policy?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "life_absence_fr",
+    "question": "Quelles sont les exclusions d'une assurance vie temporaire ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "auto_absence_en",
+    "question": "What is the premium for personal auto insurance for a driver under 25?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "disability_absence_en",
+    "question": "What is the waiting period for long-term disability benefits?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "workers_comp_absence_fr",
+    "question": "Quel est le taux de cotisation à la CNESST pour un restaurant ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "france_regulation_absence_fr",
+    "question": "Quelle est la réglementation de l'assurance commerciale en France ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "premium_amount_trap_fr",
+    "question": "Quel est le montant de la prime annuelle pour un restaurant à Laval ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "crypto_loss_trap_en",
+    "question": "Does the cyber guide cover losses from cryptocurrency price drops?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "approval_history_trap_en",
+    "question": "Who approved the 2019 revision of the commercial property policy?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "general_knowledge_en",
+    "question": "What is the capital of Australia?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "recipe_fr",
+    "question": "Donne-moi une recette de tarte aux pommes.",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "it_support_en",
+    "question": "How do I reset my email password?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": []
+  }
+]
