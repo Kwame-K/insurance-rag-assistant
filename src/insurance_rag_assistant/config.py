@@ -52,6 +52,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql://rag:rag_dev_password@localhost:5433/knowledge"
     vector_backend: Literal["qdrant", "pgvector"] = "qdrant"
+    hybrid_search: bool = True
 
 
 settings = Settings()

@@ -1,4 +1,4 @@
-from insurance_rag_assistant.config import MIN_RETRIEVAL_SCORE, ABSTENTION_TOP_SCORE
+from insurance_rag_assistant.config import ABSTENTION_TOP_SCORE, MIN_RETRIEVAL_SCORE
 from insurance_rag_assistant.models.retrieval import (
     SearchQuery,
     SearchResult,
@@ -12,7 +12,7 @@ from insurance_rag_assistant.retrieval.protocols import VectorStore
 
 class SemanticSearchService:
     """Coordinate query embedding, vector retrieval, and relevance gating."""
-          
+
     def __init__(
         self,
         embedder: MultilingualE5Embedder | None = None,
@@ -34,18 +34,15 @@ class SemanticSearchService:
             filters=search_query.filters,
             top_k=search_query.top_k,
             min_score=self.min_retrieval_score,
+            query_text=search_query.query,
         )
-
-        sufficient = bool(results) and results[0].score >= self.abstention_score
+        top_score = max((r.score for r in results), default=0.0)
         return SearchResult(
             query=search_query,
             results=results,
-            retrieval_sufficient=sufficient,
+            retrieval_sufficient=top_score >= self.abstention_score,
         )
-
 
     def close(self) -> None:
         """Close underlying local vector-store resources."""
         self.vector_store.close()
-
-    

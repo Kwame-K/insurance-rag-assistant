@@ -1,7 +1,7 @@
+from pgvector.psycopg import register_vector
 from psycopg import Connection
 from psycopg.rows import TupleRow
 from psycopg_pool import ConnectionPool
-from pgvector.psycopg import register_vector
 
 from insurance_rag_assistant.config import settings
 

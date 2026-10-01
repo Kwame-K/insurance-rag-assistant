@@ -23,6 +23,7 @@ class VectorStore(Protocol):
         filters: SearchFilters,
         top_k: int,
         min_score: float,
+        query_text: str | None = None,
     ) -> list[RetrievedChunk]: ...
 
     def close(self) -> None: ...

@@ -3,8 +3,10 @@
 Usage: uv run python scripts/calibrate_threshold.py
 Reads cases.json: expect_retrieval=True -> in scope, False -> out of scope.
 """
+
 import json
 import sys
+from itertools import pairwise
 from pathlib import Path
 
 from insurance_rag_assistant.config import ARTIFACTS_DIR, EVALUATION_CASES_FILE
@@ -16,7 +18,7 @@ def best_threshold(in_scores: list[float], out_scores: list[float]) -> dict[str,
     """Pick the threshold maximising balanced accuracy (TPR + TNR) / 2."""
     candidates = sorted(set(in_scores + out_scores))
     best = {"threshold": 0.0, "balanced_accuracy": -1.0, "tpr": 0.0, "tnr": 0.0}
-    for lo, hi in zip(candidates, candidates[1:], strict=False):
+    for lo, hi in pairwise(candidates):
         t = (lo + hi) / 2
         tpr = sum(s >= t for s in in_scores) / len(in_scores)
         tnr = sum(s < t for s in out_scores) / len(out_scores)

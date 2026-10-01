@@ -101,6 +101,7 @@ class LocalQdrantVectorStore:
         filters: SearchFilters,
         top_k: int,
         min_score: float,
+        query_text: str | None = None,
     ) -> list[RetrievedChunk]:
         """Return the top relevant chunks, subject to metadata filters."""
         if len(query_vector) != self.vector_size:
@@ -195,5 +196,3 @@ class LocalQdrantVectorStore:
                 )
 
         return conditions
-
-

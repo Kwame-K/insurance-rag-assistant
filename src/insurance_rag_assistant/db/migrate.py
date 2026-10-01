@@ -23,7 +23,9 @@ def apply_migrations(database_url: str | None = None) -> list[str]:
             if path.name in done:
                 continue
             conn.execute(path.read_text(encoding="utf-8"))  # type: ignore[arg-type]
-            conn.execute("INSERT INTO schema_migrations (name) VALUES (%s)", (path.name,))
+            conn.execute(
+                "INSERT INTO schema_migrations (name) VALUES (%s)", (path.name,)
+            )
             applied.append(path.name)
 
         conn.commit()
