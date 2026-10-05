@@ -1,0 +1,97 @@
+# Public sources for the real-document corpus.
+# `verified: true` means the URL was opened and its content checked while this
+# file was written; `false` means the URL pattern still has to be confirmed
+# (the download script fails loudly if the content is not what we expect).
+# Nothing under data/external/ is committed: check each licence before sharing.
+
+- id: osfi_e21_2024
+  title: "Operational Risk Management and Resilience - Guideline E-21"
+  publisher: "Office of the Superintendent of Financial Institutions (OSFI)"
+  url: "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/operational-risk-management-resilience-guideline"
+  format: html
+  verified: true
+  language: en
+  jurisdiction: canada
+  coverage: multi_line
+  document_type: regulatory_guideline
+  version: "2024-08-22"
+  effective_date: "2024-08-22"
+  status: active
+  must_contain: ["Operational Risk Management and Resilience", "tolerance for disruption"]
+  min_bytes: 50000
+  redistribute: false
+  license_note: "Government of Canada / OSFI terms of use: check reproduction conditions before redistribution."
+
+- id: osfi_e21_2016
+  title: "Operational Risk Management - Guideline E-21 (June 2016)"
+  publisher: "Office of the Superintendent of Financial Institutions (OSFI)"
+  url: "https://www.bcfsa.ca/media/4428/download"
+  format: pdf
+  manual: true
+  verified: false
+  language: en
+  jurisdiction: canada
+  coverage: multi_line
+  document_type: regulatory_guideline
+  version: "2016-06"
+  effective_date: "2016-06-01"
+  status: archived
+  min_bytes: 50000
+  redistribute: false
+  license_note: "OSFI text hosted by BCFSA; check reproduction conditions before redistribution."
+
+- id: osfi_b13
+  title: "Technology and Cyber Risk Management - Guideline B-13"
+  publisher: "Office of the Superintendent of Financial Institutions (OSFI)"
+  url: "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/technology-cyber-risk-management"
+  format: html
+  verified: true
+  language: en
+  jurisdiction: canada
+  coverage: cyber
+  document_type: regulatory_guideline
+  version: "2022-07"
+  effective_date: "2024-01-01"
+  status: active
+  must_contain: ["technology and cyber risk"]
+  min_bytes: 50000
+  redistribute: false
+  license_note: "Government of Canada / OSFI terms of use: check reproduction conditions before redistribution."
+
+- id: ccq_assurances
+  title: "Code civil du Quebec - Des assurances (art. 2389 et suivants)"
+  publisher: "Gouvernement du Quebec / Publications Quebec"
+  url: "https://www.legisquebec.gouv.qc.ca/fr/pdf/cs/CCQ-1991.pdf"
+  format: pdf
+  manual: true
+  verified: false
+  language: fr
+  jurisdiction: quebec
+  coverage: multi_line
+  document_type: legislation
+  converter: legal_pdf
+  first_article: "2389"
+  version: "consolidated"
+  effective_date: "1994-01-01"
+  status: active
+  min_bytes: 1000000
+  redistribute: false
+  license_note: "Check the reproduction conditions of Publications Quebec before sharing."
+
+- id: osfi_b10
+  title: "Third-Party Risk Management - Guideline B-10"
+  publisher: "Office of the Superintendent of Financial Institutions (OSFI)"
+  url: "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/third-party-risk-management-guideline"
+  format: pdf
+  manual: true
+  verified: false
+  language: en
+  jurisdiction: canada
+  coverage: multi_line
+  document_type: regulatory_guideline
+  version: "2023"
+  effective_date: "2024-05-01"
+  status: active
+  min_bytes: 50000
+  redistribute: false
+  license_note: "Government of Canada / OSFI terms of use: check reproduction conditions before redistribution."

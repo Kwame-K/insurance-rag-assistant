@@ -27,3 +27,14 @@ class VectorStore(Protocol):
     ) -> list[RetrievedChunk]: ...
 
     def close(self) -> None: ...
+
+
+class Reranker(Protocol):
+    """Re-score and re-order retrieved passages for a query."""
+
+    def rerank(
+        self,
+        query: str,
+        chunks: list[RetrievedChunk],
+        top_k: int,
+    ) -> list[RetrievedChunk]: ...

@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://rag:rag_dev_password@localhost:5433/knowledge"
     vector_backend: Literal["qdrant", "pgvector"] = "qdrant"
     hybrid_search: bool = True
+    reranker: bool = False
+    reranker_model: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+    reranker_candidates: int = 20
+    rerank_abstention_score: float | None = None
 
 
 settings = Settings()

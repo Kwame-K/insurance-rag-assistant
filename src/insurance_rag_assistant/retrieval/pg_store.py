@@ -59,9 +59,7 @@ WHERE chunks.content_hash IS DISTINCT FROM EXCLUDED.content_hash
 
 _FILTERS = """
     d.status = 'active'
-    AND (%(coverage)s::text IS NULL
-         OR d.coverage = %(coverage)s
-         OR d.coverage = 'multi_line')
+    AND (%(coverage)s::text IS NULL OR d.coverage = %(coverage)s)
     AND (%(jurisdiction)s::text IS NULL OR d.jurisdiction = %(jurisdiction)s)
     AND (%(language)s::text IS NULL OR d.language = %(language)s)
     AND (%(document_type)s::text IS NULL OR d.document_type = %(document_type)s)
@@ -88,7 +86,9 @@ LIMIT %(limit)s
 _HYBRID_SEARCH = f"""
 WITH vec AS (
     SELECT c.chunk_id,
-           row_number() OVER (ORDER BY c.embedding <=> %(qvec)s) AS rnk
+           row_number() OVER (
+               ORDER BY c.embedding <=> %(qvec)s
+           ) AS semantic_rank
     FROM chunks c
     JOIN documents d ON d.document_id = c.document_id
     WHERE {_FILTERS}
@@ -99,7 +99,8 @@ lex AS (
     SELECT c.chunk_id,
            row_number() OVER (
                ORDER BY ts_rank_cd(c.text_search, q.query) DESC, c.chunk_id
-           ) AS rnk
+           ) AS lexical_rank,
+           ts_rank_cd(c.text_search, q.query) AS lexical_score
     FROM chunks c
     JOIN documents d ON d.document_id = c.document_id
     CROSS JOIN (
@@ -113,18 +114,26 @@ lex AS (
 ),
 fused AS (
     SELECT COALESCE(v.chunk_id, l.chunk_id) AS chunk_id,
-           COALESCE(1.0 / (%(rrf_k)s + v.rnk), 0)
-         + COALESCE(1.0 / (%(rrf_k)s + l.rnk), 0) AS rrf
+           v.semantic_rank,
+           l.lexical_rank,
+           l.lexical_score,
+           COALESCE(1.0 / (%(rrf_k)s + v.semantic_rank), 0)
+         + COALESCE(1.0 / (%(rrf_k)s + l.lexical_rank), 0) AS rrf_score
     FROM vec v
     FULL OUTER JOIN lex l ON l.chunk_id = v.chunk_id
 )
-SELECT {_COLUMNS}
+SELECT {_COLUMNS},
+       f.rrf_score,
+       f.semantic_rank,
+       f.lexical_rank,
+       f.lexical_score
 FROM fused f
 JOIN chunks c ON c.chunk_id = f.chunk_id
 JOIN documents d ON d.document_id = c.document_id
-ORDER BY f.rrf DESC, c.chunk_id
+ORDER BY f.rrf_score DESC, c.chunk_id
 LIMIT %(limit)s
 """
+
 
 
 def build_or_tsquery(text: str) -> str:
@@ -295,6 +304,27 @@ class PgVectorStore:
                 coverage=r["coverage"],
                 jurisdiction=r["jurisdiction"],
                 version=r["version"],
+                rrf_score=(
+                    float(r["rrf_score"])
+                    if r.get("rrf_score") is not None
+                    else None
+                ),
+                semantic_rank=(
+                    int(r["semantic_rank"])
+                    if r.get("semantic_rank") is not None
+                    else None
+                ),
+                lexical_rank=(
+                    int(r["lexical_rank"])
+                    if r.get("lexical_rank") is not None
+                    else None
+                ),
+                lexical_score=(
+                    float(r["lexical_score"])
+                    if r.get("lexical_score") is not None
+                    else None
+                ),
+
             )
             for rank, r in enumerate(kept, start=1)
         ]

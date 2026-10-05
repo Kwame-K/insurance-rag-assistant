@@ -168,12 +168,16 @@ def test_hybrid_respects_filters(store) -> None:
     )
 
     assert [r.chunk_id for r in results] == ["a:cov:0"]
+
+
 def test_multi_line_documents_pass_coverage_filter(store) -> None:
     chunks = [_chunk("a:cov:0", "a", "flood"), _chunk("b:cov:0", "b", "flood")]
     store.upsert_chunks(chunks, [_vec(0), _vec(0)])
     with store.pool.connection() as conn:
         conn.execute("UPDATE documents SET coverage = 'other' WHERE document_id = 'a'")
-        conn.execute("UPDATE documents SET coverage = 'multi_line' WHERE document_id = 'b'")
+        conn.execute(
+            "UPDATE documents SET coverage = 'multi_line' WHERE document_id = 'b'"
+        )
 
     results = store.search(
         _vec(0),

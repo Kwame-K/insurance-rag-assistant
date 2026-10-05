@@ -1,0 +1,548 @@
+[
+  {
+    "case_id": "ccq_definition_contrat_fr",
+    "question": "Qu'est-ce qu'un contrat d'assurance selon le Code civil du Québec ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "prime",
+      "prestation",
+      "risque"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2389"
+    ]
+  },
+  {
+    "case_id": "ccq_police_contenu_fr",
+    "question": "Que doit contenir la police d'assurance ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "parties",
+      "risques",
+      "primes"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2399"
+    ]
+  },
+  {
+    "case_id": "ccq_declaration_risque_fr",
+    "question": "Quelles circonstances le preneur doit-il déclarer à l'assureur avant la conclusion du contrat ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "circonstances",
+      "prime"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2408"
+    ]
+  },
+  {
+    "case_id": "ccq_aggravation_risque_fr",
+    "question": "L'assuré doit-il informer l'assureur si les risques s'aggravent ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "aggrav",
+      "promptement"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2466"
+    ]
+  },
+  {
+    "case_id": "ccq_avis_sinistre_fr",
+    "question": "Dans quel délai faut-il aviser l'assureur d'un sinistre en assurance maladie ou accidents ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "30 jours",
+      "90 jours"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2435"
+    ]
+  },
+  {
+    "case_id": "ccq_paiement_indemnite_fr",
+    "question": "Dans quel délai l'assureur doit-il payer les sommes assurées ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "30 jours",
+      "60 jours"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2436",
+      "Article 2473"
+    ]
+  },
+  {
+    "case_id": "ccq_interet_assurance_fr",
+    "question": "Qu'est-ce qu'un intérêt d'assurance dans un bien ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "prejudice direct"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2481"
+    ]
+  },
+  {
+    "case_id": "ccq_nullite_sans_interet_fr",
+    "question": "Que se passe-t-il si l'assuré n'a aucun intérêt d'assurance dans le bien assuré ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "nulle"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2484"
+    ]
+  },
+  {
+    "case_id": "ccq_subrogation_fr",
+    "question": "L'assureur peut-il se retourner contre l'auteur du dommage après avoir indemnisé l'assuré ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "subrog",
+      "indemnit"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2474"
+    ]
+  },
+  {
+    "case_id": "ccq_sauvetage_fr",
+    "question": "Qui paie les dommages causés au bien assuré par les mesures de sauvetage ?",
+    "filters": {
+      "jurisdiction": "quebec",
+      "language": "fr"
+    },
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "sauvetage"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2487"
+    ]
+  },
+  {
+    "case_id": "ccq_definition_contrat_en_crosslingual",
+    "question": "What is an insurance contract under the Civil Code of Quebec?",
+    "filters": {},
+    "expected_document_ids": [
+      "ccq_assurances"
+    ],
+    "expected_citation_document_ids": [
+      "ccq_assurances"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": [
+      "Article 2389"
+    ]
+  },
+  {
+    "case_id": "e21_2024_tolerance_disruption_en",
+    "question": "What does OSFI expect regarding tolerance for disruption of critical operations?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_e21_2024"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_e21_2024"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "tolerance for disruption",
+      "critical operations"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "e21_2024_severe_scenarios_en",
+    "question": "Should institutions test severe but plausible scenarios?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_e21_2024"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_e21_2024"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "severe but plausible"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "e21_2016_three_lines_en",
+    "question": "How does the 2016 operational risk guideline describe the three lines of defence?",
+    "filters": {
+      "version": "2016-06"
+    },
+    "expected_document_ids": [
+      "osfi_e21_2016"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_e21_2016"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "three lines of defence"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "e21_risk_appetite_en",
+    "question": "What are the expectations for operational risk appetite?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_e21_2024",
+      "osfi_e21_2016"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_e21_2024"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "risk appetite"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "b13_incident_management_en",
+    "question": "What does Guideline B-13 expect for technology incident and problem management?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_b13"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_b13"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "incident"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "b13_patch_management_en",
+    "question": "What are OSFI's expectations on patch management?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_b13"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_b13"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "patch"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "b13_disaster_recovery_en",
+    "question": "What does Guideline B-13 say about disaster recovery?",
+    "filters": {
+      "language": "en"
+    },
+    "expected_document_ids": [
+      "osfi_b13"
+    ],
+    "expected_citation_document_ids": [
+      "osfi_b13"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": [
+      "recovery"
+    ],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_taxe_primes_fr",
+    "question": "Quel est le taux de la taxe de vente du Québec sur les primes d'assurance ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_saaq_fr",
+    "question": "Quelles sont les règles de la SAAQ pour l'indemnisation des accidents de la route ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_tarification_auto_fr",
+    "question": "Comment calculer la prime d'assurance automobile d'un jeune conducteur ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_capital_ratio_en",
+    "question": "What is the minimum capital ratio required for life insurers under OSFI?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_fintrac_en",
+    "question": "What is the penalty for failing to file an anti-money-laundering report with FINTRAC?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "absence_offtopic_fr",
+    "question": "Quelle est la capitale de la Mongolie ?",
+    "filters": {},
+    "expected_document_ids": [],
+    "expected_citation_document_ids": [],
+    "expect_retrieval": false,
+    "expected_grounded": false,
+    "must_include_terms": [],
+    "must_not_include_terms": [],
+    "expected_section_titles": []
+  },
+  {
+    "case_id": "b10_tprmf_lifecycle_en",
+    "question": "What should a third-party risk management framework cover throughout a third-party arrangement lifecycle?",
+    "filters": { "language": "en" },
+    "expected_document_ids": ["osfi_b10"],
+    "expected_citation_document_ids": ["osfi_b10"],
+    "expected_section_titles": [
+      "1.2.1 The TPRMF is enterprise-wide and governs the lifecycle of third-party arrangements"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": ["lifecycle", "due diligence", "exit"],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "b10_criticality_factors_en",
+    "question": "What factors should an FRFI consider when assessing the criticality of a third-party arrangement?",
+    "filters": { "language": "en" },
+    "expected_document_ids": ["osfi_b10"],
+    "expected_citation_document_ids": ["osfi_b10"],
+    "expected_section_titles": [
+      "2.1.1 Risk assessment criteria are comprehensive and scalable"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": ["substitutability", "critical operation", "exit"],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "b10_risk_management_intensity_en",
+    "question": "How should the rigor and frequency of third-party risk management activities be determined?",
+    "filters": { "language": "en" },
+    "expected_document_ids": ["osfi_b10"],
+    "expected_citation_document_ids": ["osfi_b10"],
+    "expected_section_titles": [
+      "2.1.3 Rigor of risk management activities matches the level of risk and criticality"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": ["proportionate", "risk", "criticality"],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "b10_lifecycle_assessment_en",
+    "question": "When should an FRFI assess the risk and criticality of a third-party arrangement?",
+    "filters": { "language": "en" },
+    "expected_document_ids": ["osfi_b10"],
+    "expected_citation_document_ids": ["osfi_b10"],
+    "expected_section_titles": [
+      "2.2.1.1 Risk and criticality of the arrangement are assessed throughout its lifecycle"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": ["prior", "regularly", "material change"],
+    "must_not_include_terms": []
+  },
+  {
+    "case_id": "b10_third_party_providers_en",
+    "question": "How should a federally regulated institution manage third-party technology providers?",
+    "filters": { "language": "en" },
+    "expected_document_ids": ["osfi_b10"],
+    "expected_citation_document_ids": ["osfi_b10"],
+    "expected_section_titles": [
+      "A. Overview",
+      "1.2.1 The TPRMF is enterprise-wide and governs the lifecycle of third-party arrangements",
+      "2.4.1.1 The FRFI monitors its third-party arrangement(s)",
+      "4. Technology and cyber risk in third-party arrangements",
+      "4.1 Clear roles and responsibilities are established for technology and cyber controls"
+    ],
+    "expect_retrieval": true,
+    "expected_grounded": true,
+    "must_include_terms": ["risk", "third-party", "monitor"],
+    "must_not_include_terms": []
+  }
+]

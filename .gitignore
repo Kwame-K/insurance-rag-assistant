@@ -16,3 +16,6 @@ vector_store/
 data/processed/
 artifacts/
 
+
+# Downloaded public documents (check licences before sharing)
+data/external/

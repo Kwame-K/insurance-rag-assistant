@@ -18,12 +18,22 @@ dependencies = [
     "typer>=0.27.2",
     "uvicorn[standard]>=0.52.4",
     "psycopg[binary,pool]>=3.2",
-     "pgvector>=0.4"
+    "pgvector>=0.4",
+    "mcp>=2,<3",
 ]
 
 [project.scripts]
 insurance-rag-assistant = "insurance_rag_assistant:main"
 insurance-rag = "insurance_rag_assistant.cli:app"
+insurance-rag-mcp = "insurance_rag_assistant.mcp_server.server:main"
+
+
+[project.optional-dependencies]
+ingest = [
+    "beautifulsoup4>=4.15.0",
+    "httpx>=0.28.1",
+    "pymupdf4llm>=1.28.2",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.0,<0.13.0"]

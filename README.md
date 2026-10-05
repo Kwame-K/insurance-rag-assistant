@@ -1,82 +1,86 @@
 # Insurance Knowledge Agent (Insurance RAG Assistant)
 
-[![Continuous Integration](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
+[
 
-A grounded, bilingual Retrieval-Augmented Generation (RAG) service for insurance documentation. The project ingests insurance documents, creates 768-dimensional semantic embeddings, stores them in a local Qdrant vector store, retrieves relevant passages, and exposes verified documentary evidence through both a CLI and a FastAPI service.
+A grounded, bilingual (English/French) Retrieval-Augmented Generation (RAG) service for insurance and insurance-regulation documentation. It ingests documents, creates 768-dimensional semantic embeddings, retrieves relevant passages with hybrid (dense + lexical) search and cross-encoder reranking, abstains when the evidence is weak, and exposes verified documentary evidence through a CLI and a FastAPI service.
 
-This repository is **Project 3** in a five-project insurance agentic AI portfolio. It is designed to be reusable by downstream systems, including the Underwriting Agent (Project 4).
+This repository is **Project 3** in a five-project insurance agentic AI portfolio. It is designed to be reused by downstream systems, including the Underwriting Agent (Project 4).
 
-> **Scope note:** this is a portfolio and learning project. Its documents, rules, outputs, and examples are synthetic or demonstrative. It is not production insurance advice, a policy-administration system, or a coverage determination engine.
+> **Scope note:** this is a portfolio and learning project. The commercial-insurance documents (cyber underwriting guide, commercial property policy, appetite and exclusions references) are synthetic. The regulatory documents (OSFI guidelines, Civil Code of Québec) are public texts used to test retrieval on real material. Nothing here is insurance advice, a policy-administration system, or a coverage determination engine.
 
 ## Problem
 
-Insurance policy wording is long, technical, and distributed across coverage grants, exclusions, deductibles, definitions, conditions, and endorsements. A question that appears simple — for example, whether a plumbing leak is covered — may require evidence from several different sections of a policy.
-
-A generic LLM may provide an answer that sounds plausible but omits a deductible, fails to mention a material condition, cites the wrong section, or invents policy language. This project addresses that problem by retrieving relevant policy passages before generation and validating each citation against the retrieved source text.
-
-The application can answer questions about covered perils and coverage grants, policy exclusions and limitations, deductibles and sublimits, definitions and insured-property terminology, conditions (including vacancy and reporting conditions), policy-specific questions requiring evidence from multiple sections, and questions that cannot be supported by the indexed corpus.
+Insurance and regulatory wording is long, technical, and spread across grants, exclusions, definitions, conditions, and cross-references. A generic LLM can give a plausible answer that omits a condition, cites the wrong section, or invents wording. This project retrieves the relevant passages first, refuses when the corpus does not support an answer, and validates every citation against the retrieved text.
 
 ## Key Features
 
-- Bilingual insurance-document retrieval in English and French
-- Semantic retrieval with `intfloat/multilingual-e5-base` embeddings (768 dimensions)
-- Persistent local Qdrant vector store (`vector_store/qdrant`)
+- Bilingual retrieval in English and French (`intfloat/multilingual-e5-base`, 768 dimensions)
+- Two vector backends: local Qdrant (default) and PostgreSQL with pgvector
+- Optional hybrid search (dense + lexical, fused with RRF)
+- Optional cross-encoder reranking with a score-based abstention gate
 - Metadata filtering by coverage, jurisdiction, language, document type, and version
-- Retrieval relevance gate to support abstention when evidence is insufficient
 - Optional grounded LLM answers through Groq structured output
-- Deterministic verbatim citation validation against retrieved source passages
+- Deterministic verbatim citation validation against retrieved passages
 - FastAPI evidence-retrieval endpoint that returns evidence without calling an LLM
-- CLI workflows for ingestion, search, question answering, and evaluation
+- Document-level and section-level retrieval evaluation, with abstention metrics
+- Corpus scripts: fetch public documents, convert PDF/HTML to Markdown, calibrate thresholds
 - Pydantic contracts, Ruff, mypy, pytest, and GitHub Actions CI
 
 ## Architecture
 
 ```text
-Markdown insurance documents (data/raw/)
+Source documents (PDF / HTML / Markdown)
+        |  scripts/fetch_corpus.py, scripts/convert_corpus.py
+        v
+Markdown with YAML front matter (data/external/markdown, data/combined)
         |
         v
-Ingestion pipeline (ingestion/loaders.py, chunker.py, pipeline.py)
+Ingestion: loaders -> section-aware chunker -> E5 embeddings
         |
         v
-Chunking + metadata (data/processed/chunks.jsonl)
+Vector store: Qdrant (default) or PostgreSQL + pgvector
         |
         v
-Multilingual E5 embeddings, 768 dimensions (retrieval/embedder.py)
-        |
-        v
-Local Qdrant collection: insurance_documents (retrieval/vector_store.py)
-        |
-        v
-SemanticSearchService (retrieval/search.py)
+SemanticSearchService
+   dense search  (+ lexical search if HYBRID_SEARCH=true, fused with RRF)
+   -> cross-encoder rerank of the top candidates (if RERANKER=true)
+   -> abstention gate (rerank score threshold)
         |
         +-------------------+-------------------+
         v                   v                   v
    CLI search      CLI ask + Groq        FastAPI evidence
-   (cli.py)         grounded generation   retrieval (api/)
-                    (generation/)                |
-                                                  v
-                                    Project 4 Underwriting Agent
+                    grounded generation   retrieval (api/)
+                                                 |
+                                                 v
+                                   Project 4 Underwriting Agent
 ```
-
-The repository deliberately separates retrieval from generation:
 
 | Layer | Responsibility |
 |---|---|
-| Ingestion | Load Markdown documents, validate metadata, create chunks, and index vectors |
-| Embeddings | Generate normalized E5 passage and query vectors |
-| Vector store | Persist chunks and metadata in local Qdrant; execute semantic search |
-| Retrieval | Apply metadata filters, rank chunks, and enforce the minimum relevance threshold |
-| Generation | Optionally generate grounded answers through a structured LLM client |
-| Citation validation | Verify that every generated quote is verbatim in a retrieved chunk |
-| API | Return documentary evidence to downstream services without making an LLM call |
+| Ingestion | Load Markdown, validate metadata, create section-aware chunks, index vectors |
+| Embeddings | Normalized E5 passage and query vectors |
+| Vector store | Persist chunks and metadata; dense and lexical search (Qdrant or pgvector) |
+| Retrieval | Filters, hybrid fusion, reranking, relevance and abstention gates |
+| Generation | Optional grounded answers through a structured LLM client |
+| Citation validation | Every quote must be verbatim in a retrieved chunk |
+| API | Return documentary evidence to downstream services without an LLM call |
 
-For a detailed architecture description, component responsibilities, sequence diagrams, and citation-validation flow, see [System Architecture](docs/architecture/system-architecture_updated.md).
+See [System Architecture](docs/architecture/system-architecture.md) for component details and sequence diagrams.
 
-## Documents and Metadata
+## Documents
 
-The initial knowledge base contains synthetic insurance documents in `data/raw/`: a cyber underwriting guide, commercial property policy wording, an underwriting appetite reference, and an exclusions reference.
+| Document | Type | Language |
+|---|---|---|
+| Commercial property policy, cyber underwriting guide, underwriting appetite (Québec), exclusions reference | Synthetic insurance documents | EN/FR |
+| OSFI Guideline B-13, Technology and Cyber Risk Management | Public regulation | EN |
+| OSFI Guideline B-10, Third-Party Risk Management | Public regulation | EN |
+| OSFI Guideline E-21 (2024), Operational Risk Management and Resilience | Public regulation | EN |
+| OSFI Guideline E-21 (2016), Operational Risk Management | Public regulation (archived) | EN |
+| Code civil du Québec, Des assurances (art. 2389 et suivants) | Public law | FR |
 
-Each document and chunk includes structured metadata: `document_id`, `name`/`title`, `document_type`, `coverage`, `jurisdiction`, `language`, `version`, `effective_date`, `section_title`, `section_path`, `page_start`/`page_end`, `chunk_id`, and `content_hash`. This metadata enables focused retrieval — for example, a cyber underwriting query for Quebec can be restricted to a specific coverage, jurisdiction, language, document type, or document version.
+Public documents are listed in `data/sources.yaml` and downloaded into `data/external/raw/`, which is git-ignored. Check each publisher's reproduction conditions before redistributing any text.
+
+Each document and chunk carries structured metadata: `document_id`, `title`, `document_type`, `coverage`, `jurisdiction`, `language`, `version`, `effective_date`, `section_title`, `section_path`, `chunk_id`, and `content_hash`.
 
 ## Project Structure
 
@@ -84,60 +88,33 @@ Each document and chunk includes structured metadata: `document_id`, `name`/`tit
 insurance-rag-assistant/
 ├── .github/workflows/ci.yml
 ├── data/
-│   ├── raw/                          # Source insurance Markdown documents
+│   ├── sources.yaml                  # Public source registry
+│   ├── raw/                          # Synthetic Markdown documents
+│   ├── external/{raw,markdown}/      # Downloaded and converted public documents
+│   ├── combined/                     # Corpus indexed by ingest
 │   └── processed/                    # Generated chunks.jsonl
-├── vector_store/
-│   └── qdrant/                       # Local persistent Qdrant data
-├── artifacts/
-│   └── retrieval_evaluation_report.json
-├── docs/
-│   └── architecture/
-│       ├── evaluation-baseline.md
-│       └── system-architecture.md
-├── src/
-│   └── insurance_rag_assistant/
-│       ├── api/
-│       │   ├── app.py                # FastAPI application
-│       │   ├── dependencies.py
-│       │   ├── routes.py
-│       │   └── schemas/
-│       │       └── evidence.py       # HTTP request/response contracts
-│       ├── application/
-│       │   └── evidence_retrieval_service.py
-│       ├── evaluation/
-│       │   └── evaluator.py
-│       ├── generation/
-│       │   ├── answer_generator.py
-│       │   └── prompts.py
-│       ├── ingestion/
-│       │   ├── chunker.py
-│       │   ├── loaders.py
-│       │   └── pipeline.py
-│       ├── llm/
-│       │   ├── base.py
-│       │   ├── fake.py
-│       │   └── groq_client.py
-│       ├── models/
-│       │   ├── documents.py
-│       │   ├── response.py
-│       │   └── retrieval.py
-│       ├── retrieval/
-│       │   ├── embedder.py
-│       │   ├── search.py
-│       │   └── vector_store.py
-│       ├── cli.py
-│       └── config.py
+├── scripts/
+│   ├── fetch_corpus.py               # Download public documents
+│   ├── convert_corpus.py             # PDF/HTML -> Markdown with front matter
+│   └── calibrate_threshold.py        # Abstention threshold calibration
+├── artifacts/                        # Evaluation reports
+├── docs/architecture/
+│   ├── evaluation-baseline.md
+│   └── system-architecture.md
+├── src/insurance_rag_assistant/
+│   ├── api/                          # FastAPI app, routes, schemas
+│   ├── application/                  # Evidence retrieval service
+│   ├── evaluation/                   # Evaluator, cases.json, cases_real.json
+│   ├── generation/                   # Answer generator, prompts
+│   ├── ingestion/                    # Loaders, chunker, converters, pipeline
+│   ├── llm/                          # Base, fake, Groq clients
+│   ├── models/                       # Pydantic models
+│   ├── retrieval/                    # Embedder, search, reranker, stores
+│   ├── cli.py
+│   └── config.py
 ├── tests/
-│   ├── test_answer_generator.py
-│   ├── test_api.py
-│   ├── test_evaluation_normalisation.py
-│   ├── test_ingestion.py
-│   └── test_models.py
-├── .env.example
-├── compose.yaml
-├── Dockerfile
-├── pyproject.toml
-└── uv.lock
+├── compose.yaml, compose.pg.yaml     # Docker (app, PostgreSQL + pgvector)
+├── Dockerfile, pyproject.toml, uv.lock
 ```
 
 ## Technology Stack
@@ -145,27 +122,24 @@ insurance-rag-assistant/
 | Area | Technology |
 |---|---|
 | Language | Python 3.11+ |
-| Environment and dependencies | uv |
-| Web framework | FastAPI + uvicorn[standard] |
-| LLM integration | Groq (structured output), provider-agnostic client interface |
-| Structured data | Pydantic and pydantic-settings |
-| Embeddings | `intfloat/multilingual-e5-base` (768 dimensions) via `sentence-transformers` |
-| Vector store | Qdrant (`qdrant-client`), persisted locally |
-| CLI framework | Typer |
-| Testing | pytest and pytest-cov |
-| Static typing | mypy |
-| Linting and formatting | Ruff |
-| Containerization | Docker and Docker Compose |
-| CI | GitHub Actions |
+| Environment | uv |
+| Web framework | FastAPI + uvicorn |
+| LLM integration | Groq (structured output), provider-agnostic interface |
+| Embeddings | `intfloat/multilingual-e5-base` via `sentence-transformers` |
+| Reranker | `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` |
+| Vector store | Qdrant (local) or PostgreSQL 17 + pgvector |
+| Document conversion | PyMuPDF (`pymupdf4llm`), BeautifulSoup |
+| CLI | Typer |
+| Quality | pytest, mypy, Ruff, GitHub Actions |
 
 ## Setup
 
 ### Prerequisites
 
-- Python 3.11 or later
-- [uv](https://docs.astral.sh/uv/)
-- Internet access on first run to download `intfloat/multilingual-e5-base`
-- A Groq API key only if using grounded generation through `insurance-rag ask`
+- Python 3.11 or later and [uv](https://docs.astral.sh/uv/)
+- Internet access on first run to download the embedding and reranker models
+- Docker, only for the pgvector backend
+- A Groq API key, only for `insurance-rag ask` and generation evaluation
 
 ### Installation
 
@@ -175,127 +149,103 @@ cd insurance-rag-assistant
 uv sync --all-groups
 ```
 
-### Environment Configuration
+### Configuration
 
-```bash
-cp .env.example .env
-```
+Settings are read from environment variables or a `.env` file (never commit it).
 
-Add your Groq key if you plan to use LLM generation:
+| Variable | Default | Purpose |
+|---|---|---|
+| `VECTOR_BACKEND` | `qdrant` | `qdrant` or `pgvector` |
+| `DATABASE_URL` | local PostgreSQL on port 5433 | pgvector connection string |
+| `HYBRID_SEARCH` | `false` | Add lexical search fused with dense search |
+| `RERANKER` | `false` | Rerank candidates with the cross-encoder |
+| `RERANKER_CANDIDATES` | `20` | Candidates passed to the reranker |
+| `RERANK_ABSTENTION_SCORE` | unset | Abstain when the top rerank score is below this value |
+| `GROQ_API_KEY` | unset | Needed only for generation |
+
+Recommended configuration (the one evaluated below):
 
 ```dotenv
-GROQ_API_KEY=your_groq_api_key
+VECTOR_BACKEND=pgvector
+HYBRID_SEARCH=true
+RERANKER=true
+RERANKER_CANDIDATES=20
+RERANK_ABSTENTION_SCORE=0
 ```
 
-Do not commit `.env` files, API keys, private policy documents, or production claims data.
-
-Inspect available CLI commands:
+### PostgreSQL with pgvector
 
 ```bash
-uv run insurance-rag --help
+docker compose -f compose.yaml -f compose.pg.yaml up -d postgres
 ```
+
+## Building the Corpus
+
+Public documents are described in `data/sources.yaml`.
+
+```bash
+uv run python scripts/fetch_corpus.py                    # download missing documents
+uv run python scripts/convert_corpus.py                  # convert all
+uv run python scripts/convert_corpus.py --only osfi_b10  # convert one
+```
+
+`fetch_corpus.py` writes `data/external/raw/` and a download manifest with URL, date, and SHA-256. Sources marked `manual: true` must be downloaded by hand into `data/external/raw/<id>.<format>`. `convert_corpus.py` writes `data/external/markdown/<id>.md` with YAML front matter and validates each file with the project's own loader and chunker.
+
+To add a document: register it in `data/sources.yaml`, place or download the source file, convert it, check the headings, then copy the Markdown into the indexed corpus directory.
 
 ## Ingestion
 
-Index the Markdown corpus into local Qdrant:
-
 ```bash
-uv run insurance-rag ingest --recreate
+uv run insurance-rag ingest --source-dir data/combined --recreate
 ```
 
-This workflow loads Markdown documents from `data/raw/`, validates document metadata, creates overlapping chunks, generates normalized 768-dimensional embeddings, recreates the local `insurance_documents` Qdrant collection, stores vectors and metadata, and writes processed chunks to `data/processed/chunks.jsonl`.
+This loads Markdown documents, validates metadata, creates section-aware chunks, embeds them, rebuilds the collection, and writes `data/processed/chunks.jsonl`. Always ingest the whole corpus with `--recreate`, otherwise documents missing from the source directory are removed from the index.
 
-## CLI Usage
+## Usage
 
-### Search Source Passages
+### Search
 
 ```bash
 uv run insurance-rag search \
-  --query "What are the multi-factor authentication requirements for cyber insurance underwriting?" \
+  --query "What are OSFI's expectations for patching in a timely and controlled manner?" \
   --top-k 5
 ```
 
-With filters:
+Filters: `--coverage`, `--jurisdiction`, `--language`, `--document-type`, `--version`. When no passage passes the relevance and abstention gates, the command reports that and exits with code 1.
 
-```bash
-uv run insurance-rag search \
-  --query "What are the referral criteria for cyber insurance?" \
-  --coverage cyber \
-  --jurisdiction Quebec \
-  --language en \
-  --document-type underwriting_guide \
-  --top-k 5
-```
-
-### Generate a Grounded Answer
+### Grounded Answer
 
 ```bash
 uv run insurance-rag ask \
   --query "Is water damage caused by a sudden plumbing leak covered under the commercial property policy?" \
-  --coverage commercial_property \
-  --language en \
-  --top-k 5
+  --coverage commercial_property --language en --top-k 5
 ```
 
-Example output:
+`ask` calls Groq only after retrieval succeeds. Every citation must refer to a retrieved chunk and every quote must appear verbatim in that chunk.
 
-```text
-Answer:
-Yes. Water damage caused by a sudden and accidental escape of water
-from plumbing, heating, air conditioning, or fire-protection systems
-is covered under the commercial property policy, subject to the
-applicable deductible.
+### Evaluation
 
-Grounded: True
-Confidence: high
-
-Citations:
-
-- [commercial_property_policy_v1:commercial-property-policy-3-water-damage-coverage:002]
-  Document: Commercial Property Policy – Specimen Wording
-  Section: 3. Water Damage Coverage
-  Supporting quote: "Water damage caused by the sudden and accidental escape of water from plumbing, heating, air conditioning, or fire-protection systems is covered, subject to the applicable deductible."
+```bash
+uv run insurance-rag evaluate \
+  --cases src/insurance_rag_assistant/evaluation/cases_real.json \
+  --output artifacts/evaluation.json
 ```
 
-The `ask` command uses Groq only after retrieval succeeds; its response is validated so that every citation must refer to a retrieved chunk and every quote must be found verbatim in that chunk.
-
-| Argument | Purpose |
-|---|---|
-| `--query` | The insurance-policy question to answer |
-| `--coverage` | Limits retrieval to the relevant insurance product or coverage corpus |
-| `--language` | Selects the language context for the query and response |
-| `--top-k` | Number of candidate chunks passed from retrieval to generation |
+Add `--with-generation` to also evaluate grounding, citations, and answer constraints (one Groq request per case).
 
 ## FastAPI Service
-
-The FastAPI service exposes evidence retrieval for the Underwriting Agent. Unlike the `ask` command, it does **not** call Groq or generate an answer — it only returns relevant source passages and metadata.
-
-### Start the Service
 
 ```bash
 uv run uvicorn insurance_rag_assistant.api.app:app --reload --port 8001
 ```
 
 ```text
-GET  http://127.0.0.1:8001/health
-POST http://127.0.0.1:8001/v1/retrieve-evidence
-GET  http://127.0.0.1:8001/docs
+GET  /health
+POST /v1/retrieve-evidence
+GET  /docs
 ```
 
-### Health Check
-
-```bash
-curl "http://127.0.0.1:8001/health"
-```
-
-```json
-{
-  "service": "insurance-rag-assistant",
-  "status": "ok"
-}
-```
-
-### Retrieve Underwriting Evidence
+The service returns relevant source passages and metadata without calling an LLM.
 
 ```bash
 curl -X POST "http://127.0.0.1:8001/v1/retrieve-evidence" \
@@ -303,40 +253,46 @@ curl -X POST "http://127.0.0.1:8001/v1/retrieve-evidence" \
   -d '{
     "request_id": "REQ-MFA-001",
     "top_k": 3,
-    "queries": [
-      {
-        "supported_finding_id": "UW-CYB-003",
-        "query": "What are the multi-factor authentication requirements for cyber insurance underwriting?"
-      }
-    ]
+    "queries": [{
+      "supported_finding_id": "UW-CYB-003",
+      "query": "What are the multi-factor authentication requirements for cyber insurance underwriting?"
+    }]
   }'
-```
-
-```json
-{
-  "request_id": "REQ-MFA-001",
-  "retrieval_status": "SUCCESS",
-  "citations": [
-    {
-      "citation_id": "UW-CYB-003:cyber_underwriting_guide_v1:...",
-      "source_document_id": "cyber_underwriting_guide_v1",
-      "source_document_title": "Cyber Insurance Underwriting Guide",
-      "section_reference": "3. Minimum Security Controls",
-      "excerpt": "...multi-factor authentication must be enabled...",
-      "relevance_score": 0.889,
-      "supported_finding_id": "UW-CYB-003"
-    }
-  ],
-  "unresolved_finding_ids": [],
-  "knowledge_base_version": "insurance_documents"
-}
 ```
 
 | Status | Meaning |
 |---|---|
-| `SUCCESS` | At least one relevant citation was found for every requested finding |
-| `PARTIAL` | Citations were found, but one or more findings have insufficient evidence |
-| `INSUFFICIENT_CONTEXT` | No requested finding produced passages above the retrieval threshold |
+| `SUCCESS` | Every requested finding has at least one relevant citation |
+| `PARTIAL` | Some findings have no sufficient evidence |
+| `INSUFFICIENT_CONTEXT` | No finding produced passages above the threshold |
+
+## Evaluation Results
+
+Measured on 2026-10-02 with the recommended configuration. Metrics are document-level unless noted. Details and caveats are in [evaluation-baseline.md](docs/architecture/evaluation-baseline.md).
+
+| Set | Cases | Recall@5 | MRR | Correct abstention | False abstention |
+|---|---:|---:|---:|---:|---:|
+| Public documents (`cases_real.json`) | 29 (23 answerable, 6 unanswerable) | 1.000 | 0.922 | 1.000 | 0.000 |
+| Synthetic documents (`cases.json`) | 35 (21 answerable, 14 unanswerable) | 0.929 | 1.000 | 1.000 | 0.095 |
+
+On the public-document set, section-level Hit@1 is 0.688, Hit@5 is 1.000, and Section MRR is 0.812.
+
+Retrieval choices measured on the public-document set:
+
+| Configuration | Recall@5 | MRR |
+|---|---:|---:|
+| Dense only, 20 rerank candidates | 0.957 | 0.873 |
+| Hybrid, 20 rerank candidates | 1.000 | 0.922 |
+| Hybrid, 100 rerank candidates | 0.957 | 0.906 |
+
+## Known Limitations
+
+- **Abstention threshold.** The threshold of 0 was chosen on the public-document cases. On the synthetic set it wrongly refuses 2 of 21 answerable questions (`holdout_burst_pipe_en`, `holdout_cyber_mfa_loose_en`), although the correct document is ranked first. Short or informal questions can score below 0 and trigger an abstention.
+- **Small evaluation sets.** 29 and 35 cases, with only 6 unanswerable cases on the public documents. Differences of a few points are not statistically meaningful.
+- **Hybrid gain is narrow.** It depends mostly on one case (`b13_patch_management_en`).
+- **Cases adjusted after results.** One stale case was removed after B-10 was added to the corpus; that was decided after seeing its result and is not an independent measurement.
+- **Broad single-word queries.** Short queries such as "patch management" can retrieve a larger, more general document before the specific section.
+- This project is not a legal or coverage-determination tool.
 
 ## Integration with Project 4
 
@@ -352,7 +308,7 @@ HTTPInsuranceKnowledgeAgent
 Project 3: POST /v1/retrieve-evidence, port 8001
         |
         v
-Qdrant retrieval
+Hybrid retrieval + reranking
         |
         v
 Verbatim citations returned to UnderwritingDecision.evidence
@@ -362,168 +318,19 @@ Verbatim citations returned to UnderwritingDecision.evidence
 |---|---|
 | Documents and metadata | Submission validation |
 | Chunking and embeddings | Completeness checks |
-| Qdrant collection | Appetite and eligibility rules |
-| Retrieval relevance | Risk score and pricing indication |
+| Vector store and retrieval | Appetite and eligibility rules |
+| Reranking and abstention | Risk score and pricing indication |
 | Citation evidence | Referral, decline, and review workflow |
-| Grounded answer generation | Final underwriting decision |
 
-The RAG service does not accept, decline, price, or bind insurance. It provides documentary evidence only.
-
-## Citation Validation Strategy
-
-```text
-Retrieved policy passages
-    +
-Structured LLM answer
-    +
-Pydantic schema validation
-    +
-Deterministic citation validation
-    =
-Auditable source-grounded response
-```
-
-### Structured Output Validation
-
-Pydantic validates that the LLM response conforms to the application contract, including answer text, groundedness status, confidence level, citation list, citation chunk ID, document and section metadata, and supporting quotation. Malformed or incomplete LLM JSON is rejected before the answer reaches the caller.
-
-### Verbatim Quote Validation
-
-For every citation, the application verifies that the `chunk_id` belongs to the retrieved chunks for the current question, the citation `document_id` matches the cited chunk, the document name and section title match the cited chunk metadata, and the supporting quote is present as a contiguous substring of the source chunk.
-
-The validation layer normalizes only harmless formatting differences (non-breaking spaces, typographic apostrophes, quotation marks, and dash variants). It does **not** lowercase text, remove words, use semantic similarity, or accept a paraphrased quote as evidence:
-
-```text
-Accepted after typography normalization
-Source:    fire-protection systems
-Generated: fire‑protection systems
-
-Rejected as a paraphrase
-Source:    sudden and accidental escape of water
-Generated: sudden plumbing leak damage
-```
-
-### Groundedness
-
-`Grounded: True` means the response contains citations that passed the project's provenance, metadata, and verbatim-quote checks. It does not mean the system has made a legally binding coverage decision. If the available documents do not contain enough evidence, the correct behavior is to state that the answer cannot be verified rather than infer or invent one.
-
-## Evaluation
-
-The project includes retrieval and generation evaluation assets in `src/insurance_rag_assistant/evaluation/` and `artifacts/retrieval_evaluation_report.json`. Evaluation focuses on retrieval relevance, correct document selection, grounding of generated responses, citation validity, and explicit abstention when retrieval is insufficient.
+## Development
 
 ```bash
-uv run insurance-rag evaluate-retrieval
-```
-
-Useful evaluation signals:
-
-| Signal | Question answered |
-|---|---|
-| Recall@k | Was the necessary policy passage retrieved? |
-| MRR | How highly was the necessary passage ranked? |
-| Grounded-answer rate | How often does the system produce source-supported answers? |
-| Citation validity | Are supporting quotes present in the cited chunks? |
-| Citation completeness | Do citations support all material claims in the answer? |
-| Refusal correctness | Does the system decline to answer when evidence is insufficient? |
-
-See `docs/architecture/evaluation-baseline.md` for the latest recorded results.
-
-## Quality Checks
-
-```bash
-uv run ruff format --check .
-uv run ruff check .
-uv run mypy src
 uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src
 ```
 
-Format the project locally:
+Tests cover answer generation, the API, conversion, evaluation normalisation and section matching, false abstention, ingestion, models, the pgvector store, and the reranker. CI runs on GitHub Actions.
 
-```bash
-uv run ruff format .
-```
-
-The GitHub Actions workflow runs formatting checks, linting, static typing, and tests on pushes and pull requests to `main`.
-
-## Docker
-
-```bash
-docker compose up --build
-docker compose up --build -d
-docker compose down
-```
-
-This service can also be orchestrated centrally by the `insurance-agentic-platform` Docker Compose project.
-
-## Limitations
-
-- Answer quality depends on document quality, chunking, metadata, embeddings, retrieval configuration, and the LLM.
-- A validated quote proves that the quoted text comes from the cited chunk; it does not alone prove that no other policy provision changes the outcome.
-- The assistant does not replace review of the complete policy, endorsements, schedules, declarations, or facts of a specific claim.
-- The system must not be used to make binding coverage, underwriting, pricing, or claims decisions.
-- Real policy documents and customer information require appropriate access controls, retention rules, and privacy protections.
-
-## Design Principles
-
-- Retrieval before generation: no LLM response is generated without retrieved context.
-- Verbatim citations: generated quotes must be found in retrieved chunks.
-- Explicit abstention: insufficient evidence returns an explicit insufficient-context state.
-- Metadata-aware retrieval: filters prevent mixing products, jurisdictions, or document versions.
-- Service boundaries: downstream agents consume an API rather than accessing Qdrant directly.
-- LLM separation: evidence retrieval remains usable without Groq or another generation provider.
-- Testability: retrieval, generation, embeddings, vector storage, and API contracts remain independently testable.
-
-## Roadmap
-
-- [x] Markdown ingestion and chunking
-- [x] 768-dimensional multilingual E5 embeddings
-- [x] Local Qdrant vector storage
-- [x] Metadata-aware semantic search
-- [x] Grounded Groq generation with citation validation
-- [x] Retrieval and generation evaluation framework
-- [x] FastAPI evidence-retrieval endpoint
-- [x] Integration with the Project 4 Underwriting Agent
-- [ ] Add an API endpoint for grounded question answering (not just evidence retrieval)
-- [ ] Add document-version selection and effective-date routing
-- [ ] Add asynchronous retrieval and production deployment configuration
-- [ ] Add retrieval observability, latency metrics, and audit logs
-- [ ] Support a remotely deployed Qdrant service with authenticated access
-
-## Position in the Insurance Agentic Platform
-
-| Project | Repository | Role |
-|---|---|---|
-| 1 | insurance-submission-extractor | Structured submission intake and validation |
-| 2 | insurance-data-analyst-agent | Controlled portfolio analytics (loss ratio, deterministic SQL) |
-| 3 | insurance-rag-assistant (this repo) | Insurance Knowledge Agent with grounded, cited retrieval |
-| 4 | underwriting-agent | Deterministic underwriting rules, risk scoring, pricing, and evidence retrieval |
-| — | insurance-agentic-platform | Docker Compose orchestration layer for the running services |
-
-## Recommended Technology Upgrades
-
-| Area | Current | Recommended | Benefit |
-|---|---|---|---|
-| Observability | No tracing | Langfuse or OpenTelemetry around retrieval and generation | Visibility into retrieval latency, embedding cost, and citation-rejection rate |
-| Retrieval quality | Single-stage semantic search | Add a reranker (e.g. cross-encoder) after Qdrant retrieval | Improves precision before the relevance gate, reducing false abstentions |
-| Vector store deployment | Local persisted Qdrant only | Managed or remote Qdrant with authenticated access (already on roadmap) | Enables multi-instance and production deployment |
-| Evaluation | Retrieval-only evaluation report | Add LLM-as-a-judge for answer faithfulness beyond exact-quote matching | Detects subtle grounding issues not caught by substring matching |
-| API surface | Evidence retrieval only | Add a grounded question-answering endpoint (already on roadmap) | Lets the Underwriting Agent request synthesized answers, not just raw citations |
-| Async processing | Synchronous ingestion and retrieval | Async FastAPI endpoints with async Qdrant client | Better throughput under concurrent underwriting requests |
-
-## Improvements and Next Steps
-
-1. Add a reranking stage (cross-encoder) between Qdrant retrieval and the relevance gate to improve precision on ambiguous multi-section questions.
-2. Deliver the roadmap item for a grounded question-answering API endpoint, extending `application/evidence_retrieval_service.py` beyond raw evidence retrieval.
-3. Instrument retrieval and generation with tracing (Langfuse or OpenTelemetry) to monitor citation-rejection rate and retrieval latency in production.
-4. Add document-version selection and effective-date routing so that outdated policy wordings are excluded from retrieval automatically.
-5. Move from local Qdrant storage to a remotely deployed, authenticated Qdrant instance to support the platform's Docker Compose orchestration at scale.
-6. Extend the evaluation framework with LLM-as-a-judge scoring for answer faithfulness, complementing the existing verbatim-quote validation.
-
-## Agentic AI Best Practices Applied Here
-
-- **Retrieval before generation**: the answer generator can only use retrieved chunks as context, which is the core guardrail against hallucinated policy language.
-- **Deterministic verification of generative output**: verbatim citation validation treats every LLM claim as unverified until it is matched, character-for-character, against retrieved source text — a strong example of not trusting LLM output by default.
-- **Explicit abstention over fabrication**: `INSUFFICIENT_CONTEXT` and `grounded=false` states let the system say "I don't know" instead of inventing plausible-sounding coverage language, which is critical in a regulated domain.
-- **Clean service boundary for downstream agents**: the Underwriting Agent consumes a versioned HTTP API (`/v1/retrieve-evidence`) rather than querying Qdrant directly, keeping retrieval internals swappable.
-- **LLM-independent core capability**: evidence retrieval works without Groq, so the RAG service degrades gracefully rather than failing completely if the LLM provider is unavailable.
-- **Next practice to adopt**: expose the evidence-retrieval and grounded-answer capabilities as MCP tools so the Underwriting Agent (or any future orchestrator) can call them through a standardized tool contract instead of a bespoke HTTP client.
+Repeat the evaluation after any change to the corpus, chunking, embeddings, filters, `top-k`, hybrid weights, reranker, thresholds, prompts, or response schema. Store each report with the configuration used.
