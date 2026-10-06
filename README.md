@@ -22,6 +22,7 @@ Insurance and regulatory wording is long, technical, and spread across grants, e
 - Optional grounded LLM answers through Groq structured output
 - Deterministic verbatim citation validation against retrieved passages
 - FastAPI evidence-retrieval endpoint that returns evidence without calling an LLM
+- Read-only MCP server (stdio) exposing evidence retrieval and document search to MCP clients
 - Document-level and section-level retrieval evaluation, with abstention metrics
 - Corpus scripts: fetch public documents, convert PDF/HTML to Markdown, calibrate thresholds
 - Pydantic contracts, Ruff, mypy, pytest, and GitHub Actions CI
@@ -108,6 +109,7 @@ insurance-rag-assistant/
 │   ├── generation/                   # Answer generator, prompts
 │   ├── ingestion/                    # Loaders, chunker, converters, pipeline
 │   ├── llm/                          # Base, fake, Groq clients
+│   ├── mcp_server/                   # Read-only MCP server (stdio)
 │   ├── models/                       # Pydantic models
 │   ├── retrieval/                    # Embedder, search, reranker, stores
 │   ├── cli.py
@@ -265,6 +267,38 @@ curl -X POST "http://127.0.0.1:8001/v1/retrieve-evidence" \
 | `SUCCESS` | Every requested finding has at least one relevant citation |
 | `PARTIAL` | Some findings have no sufficient evidence |
 | `INSUFFICIENT_CONTEXT` | No finding produced passages above the threshold |
+
+## MCP Server
+
+The same retrieval service is also available as a [Model Context Protocol](https://modelcontextprotocol.io) server, so MCP-compatible clients can query the knowledge base directly. It uses the stdio transport, runs the same retrieval pipeline as the FastAPI service, and never calls an LLM.
+
+```bash
+uv run insurance-rag-mcp
+```
+
+The server loads the embedding model before serving its first request, writes logs to stderr (stdout is reserved for the protocol), and reads the same configuration as the API. The vector store (Qdrant or pgvector) must already be populated by the ingestion step.
+
+| Tool | Purpose |
+|---|---|
+| `retrieve_evidence` | Takes a `request_id` and a list of queries, each tied to a `supported_finding_id`. Returns `retrieval_status` (`SUCCESS`, `PARTIAL`, or `INSUFFICIENT_CONTEXT`), verbatim citations, and the finding ids without sufficient evidence |
+| `search_documents` | Takes a single question. Returns `retrieval_sufficient` and ranked passages with document, section, chunk id, text, and scores. `top_k` is clamped to 1-10 |
+
+Both tools accept optional `coverage`, `jurisdiction`, `language`, and `document_type` filters. Both are annotated as read-only and idempotent. When `retrieval_sufficient` is false, the corpus does not support an answer and the client should not answer from general knowledge.
+
+Example client configuration (adjust the absolute path):
+
+```json
+{
+  "mcpServers": {
+    "insurance-knowledge": {
+      "command": "uv",
+      "args": ["run", "--directory", "/absolute/path/to/insurance-rag-assistant", "insurance-rag-mcp"]
+    }
+  }
+}
+```
+
+The MCP server is not part of the Docker Compose platform, because stdio servers are launched by the client process rather than exposed on a network port.
 
 ## Evaluation Results
 
