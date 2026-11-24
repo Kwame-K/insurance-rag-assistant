@@ -218,16 +218,13 @@ def search(
                 str(item.lexical_rank) if item.lexical_rank is not None else "-"
             )
             lexical_score = (
-                f"{item.lexical_score:.3f}"
-                if item.lexical_score is not None
-                else "-"
+                f"{item.lexical_score:.3f}" if item.lexical_score is not None else "-"
             )
             diagnostics = (
                 f"Hybrid RRF: {item.rrf_score:.5f} | "
                 f"Vector: {item.score:.3f} (rank {semantic_rank}) | "
                 f"Lexical: {lexical_score} (rank {lexical_rank})"
             )
-
 
         if item.rerank_score is not None:
             diagnostics += f" | Rerank: {item.rerank_score:.4f}"
@@ -239,7 +236,6 @@ def search(
             f"Chunk ID: {item.chunk_id}\n"
             f"Text: {item.text}\n"
         )
-
 
 
 @app.command()

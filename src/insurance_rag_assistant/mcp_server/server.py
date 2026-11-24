@@ -7,7 +7,6 @@ from typing import Any
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
-
 from insurance_rag_assistant.api.dependencies import (
     get_evidence_retrieval_service,
 )

@@ -112,7 +112,6 @@ def evaluate_retrieval(
             for result in search_result.results
         ]
 
-
         unique_retrieved_document_ids = set(retrieved_document_ids)
         expected_document_ids = set(case.expected_document_ids)
 
@@ -168,9 +167,7 @@ def evaluate_retrieval(
                     1.0 / first_section_rank if first_section_rank is not None else 0.0
                 )
                 section_hits_at_1.append(1.0 if first_section_rank == 1 else 0.0)
-                section_hits_at_k.append(
-                    1.0 if first_section_rank is not None else 0.0
-                )
+                section_hits_at_k.append(1.0 if first_section_rank is not None else 0.0)
                 section_reciprocal_ranks.append(section_rr)
                 section_fields = {
                     "expected_section_titles": sorted(case.expected_section_titles),
@@ -245,9 +242,7 @@ def evaluate_retrieval(
             else None
         ),
         "false_abstention_rate": (
-            false_abstentions / answerable_case_count
-            if answerable_case_count
-            else None
+            false_abstentions / answerable_case_count if answerable_case_count else None
         ),
         "false_abstention_case_ids": [
             case["case_id"] for case in case_results if case.get("false_abstention")

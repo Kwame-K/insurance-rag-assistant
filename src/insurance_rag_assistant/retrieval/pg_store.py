@@ -135,7 +135,6 @@ LIMIT %(limit)s
 """
 
 
-
 def build_or_tsquery(text: str) -> str:
     """Turn free text into an OR-joined tsquery string (word characters only)."""
     tokens: list[str] = []
@@ -305,9 +304,7 @@ class PgVectorStore:
                 jurisdiction=r["jurisdiction"],
                 version=r["version"],
                 rrf_score=(
-                    float(r["rrf_score"])
-                    if r.get("rrf_score") is not None
-                    else None
+                    float(r["rrf_score"]) if r.get("rrf_score") is not None else None
                 ),
                 semantic_rank=(
                     int(r["semantic_rank"])
@@ -324,7 +321,6 @@ class PgVectorStore:
                     if r.get("lexical_score") is not None
                     else None
                 ),
-
             )
             for rank, r in enumerate(kept, start=1)
         ]
