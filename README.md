@@ -1,6 +1,6 @@
 # Insurance Knowledge Agent (Insurance RAG Assistant)
 
-[
+[![Continuous Integration](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
 A grounded, bilingual (English/French) Retrieval-Augmented Generation (RAG) service for insurance and insurance-regulation documentation. It ingests documents, creates 768-dimensional semantic embeddings, retrieves relevant passages with hybrid (dense + lexical) search and cross-encoder reranking, abstains when the evidence is weak, and exposes verified documentary evidence through a CLI and a FastAPI service.
 
