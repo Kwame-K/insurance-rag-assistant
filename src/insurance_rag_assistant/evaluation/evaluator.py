@@ -27,6 +27,7 @@ class EvaluationCase(BaseModel):
     filters: SearchFilters = Field(default_factory=SearchFilters)
     expected_document_ids: list[str]
     expected_citation_document_ids: list[str] = Field(default_factory=list)
+    expected_section_titles: list[str] = Field(default_factory=list)
     expect_retrieval: bool
     expected_grounded: bool
     must_include_terms: list[str] = Field(default_factory=list)
@@ -74,8 +75,13 @@ def evaluate_retrieval(
 
     recall_scores: list[float] = []
     reciprocal_ranks: list[float] = []
+    section_hits_at_1: list[float] = []
+    section_hits_at_k: list[float] = []
+    section_reciprocal_ranks: list[float] = []
     correct_abstentions = 0
     total_unanswerable_cases = 0
+    accepted_answerable_cases = 0
+    false_abstentions = 0
 
     for case in cases:
         search_result = search_service.search(
@@ -97,9 +103,15 @@ def evaluate_retrieval(
                 "document_id": result.document_id,
                 "section_title": result.section_title,
                 "score": result.score,
+                "rrf_score": result.rrf_score,
+                "semantic_rank": result.semantic_rank,
+                "lexical_rank": result.lexical_rank,
+                "lexical_score": result.lexical_score,
+                "rerank_score": result.rerank_score,
             }
             for result in search_result.results
         ]
+
 
         unique_retrieved_document_ids = set(retrieved_document_ids)
         expected_document_ids = set(case.expected_document_ids)
@@ -129,15 +141,53 @@ def evaluate_retrieval(
 
             recall_scores.append(recall_at_k)
             reciprocal_ranks.append(reciprocal_rank)
+            if search_result.retrieval_sufficient:
+                accepted_answerable_cases += 1
+            else:
+                false_abstentions += 1
+
+            section_fields: dict[str, Any] = {}
+            if case.expected_section_titles:
+                expected_sections = {
+                    normalize_evaluation_text(title)
+                    for title in case.expected_section_titles
+                }
+                first_section_rank = next(
+                    (
+                        rank
+                        for rank, result in enumerate(
+                            search_result.results,
+                            start=1,
+                        )
+                        if normalize_evaluation_text(result.section_title)
+                        in expected_sections
+                    ),
+                    None,
+                )
+                section_rr = (
+                    1.0 / first_section_rank if first_section_rank is not None else 0.0
+                )
+                section_hits_at_1.append(1.0 if first_section_rank == 1 else 0.0)
+                section_hits_at_k.append(
+                    1.0 if first_section_rank is not None else 0.0
+                )
+                section_reciprocal_ranks.append(section_rr)
+                section_fields = {
+                    "expected_section_titles": sorted(case.expected_section_titles),
+                    "first_section_rank": first_section_rank,
+                    "section_reciprocal_rank": section_rr,
+                }
 
             case_results.append(
                 {
                     "case_id": case.case_id,
                     "question": case.question,
                     "expected_document_ids": sorted(expected_document_ids),
+                    **section_fields,
                     "retrieved_document_ids": retrieved_document_ids,
                     "retrieved_passages": retrieved_passages,
                     "retrieval_sufficient": search_result.retrieval_sufficient,
+                    "false_abstention": not search_result.retrieval_sufficient,
                     "recall_at_k": recall_at_k,
                     "first_relevant_rank": first_relevant_rank,
                     "reciprocal_rank": reciprocal_rank,
@@ -187,6 +237,35 @@ def evaluate_retrieval(
         "correct_abstention_rate": (
             correct_abstentions / total_unanswerable_cases
             if total_unanswerable_cases
+            else None
+        ),
+        "answerable_retrieval_rate": (
+            accepted_answerable_cases / answerable_case_count
+            if answerable_case_count
+            else None
+        ),
+        "false_abstention_rate": (
+            false_abstentions / answerable_case_count
+            if answerable_case_count
+            else None
+        ),
+        "false_abstention_case_ids": [
+            case["case_id"] for case in case_results if case.get("false_abstention")
+        ],
+        "section_level_cases": len(section_hits_at_1),
+        "section_hit_at_1": (
+            sum(section_hits_at_1) / len(section_hits_at_1)
+            if section_hits_at_1
+            else None
+        ),
+        "section_hit_at_k": (
+            sum(section_hits_at_k) / len(section_hits_at_k)
+            if section_hits_at_k
+            else None
+        ),
+        "section_mrr": (
+            sum(section_reciprocal_ranks) / len(section_reciprocal_ranks)
+            if section_reciprocal_ranks
             else None
         ),
         "case_results": case_results,

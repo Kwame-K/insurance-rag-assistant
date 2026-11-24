@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,6 +21,8 @@ EMBEDDING_BATCH_SIZE = 32
 
 DEFAULT_TOP_K = 5
 MIN_RETRIEVAL_SCORE = 0.55
+ABSTENTION_TOP_SCORE = 0.834
+
 
 CHUNK_MAX_CHARACTERS = 1_600
 CHUNK_OVERLAP_CHARACTERS = 200
@@ -46,6 +49,14 @@ class Settings(BaseSettings):
 
     groq_api_key: str | None = None
     groq_model_name: str = GROQ_MODEL_NAME
+
+    database_url: str = "postgresql://rag:rag_dev_password@localhost:5433/knowledge"
+    vector_backend: Literal["qdrant", "pgvector"] = "qdrant"
+    hybrid_search: bool = True
+    reranker: bool = False
+    reranker_model: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+    reranker_candidates: int = 20
+    rerank_abstention_score: float | None = None
 
 
 settings = Settings()

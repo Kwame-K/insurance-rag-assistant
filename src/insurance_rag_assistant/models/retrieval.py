@@ -36,6 +36,11 @@ class RetrievedChunk(BaseModel):
     page_end: int | None = None
     text: str
     score: float = Field(ge=-1.0, le=1.0)
+    rrf_score: float | None = Field(default=None, ge=0.0)
+    semantic_rank: int | None = Field(default=None, ge=1)
+    lexical_rank: int | None = Field(default=None, ge=1)
+    lexical_score: float | None = Field(default=None, ge=0.0)
+    rerank_score: float | None = None
     rank: int = Field(ge=1)
     language: Language
     coverage: str

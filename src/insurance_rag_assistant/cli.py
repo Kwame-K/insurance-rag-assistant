@@ -208,13 +208,38 @@ def search(
             else "Markdown section"
         )
 
+        diagnostics = f"Vector: {item.score:.3f}"
+
+        if item.rrf_score is not None:
+            semantic_rank = (
+                str(item.semantic_rank) if item.semantic_rank is not None else "-"
+            )
+            lexical_rank = (
+                str(item.lexical_rank) if item.lexical_rank is not None else "-"
+            )
+            lexical_score = (
+                f"{item.lexical_score:.3f}"
+                if item.lexical_score is not None
+                else "-"
+            )
+            diagnostics = (
+                f"Hybrid RRF: {item.rrf_score:.5f} | "
+                f"Vector: {item.score:.3f} (rank {semantic_rank}) | "
+                f"Lexical: {lexical_score} (rank {lexical_rank})"
+            )
+
+
+        if item.rerank_score is not None:
+            diagnostics += f" | Rerank: {item.rerank_score:.4f}"
+
         typer.echo(
-            f"\n[{item.rank}] Score: {item.score:.3f}\n"
+            f"\n[{item.rank}] {diagnostics}\n"
             f"Document: {item.document_name}\n"
             f"Section: {item.section_title} ({location})\n"
             f"Chunk ID: {item.chunk_id}\n"
             f"Text: {item.text}\n"
         )
+
 
 
 @app.command()
@@ -309,6 +334,8 @@ def evaluate(
     recall = report["macro_recall_at_k"]
     mrr = report["mean_reciprocal_rank"]
     abstention = report["correct_abstention_rate"]
+    answerable_retrieval = report["answerable_retrieval_rate"]
+    false_abstention = report["false_abstention_rate"]
 
     typer.echo(f"Evaluation report written to: {output_path}")
     typer.echo(f"Cases evaluated: {report['total_cases']}")
@@ -318,11 +345,29 @@ def evaluate(
         else "Macro Recall: N/A"
     )
     typer.echo(f"MRR: {mrr:.3f}" if mrr is not None else "MRR: N/A")
+    if report.get("section_level_cases"):
+        typer.echo(f"Section-level cases: {report['section_level_cases']}")
+        typer.echo(f"Section Hit@1: {report['section_hit_at_1']:.3f}")
+        typer.echo(f"Section Hit@{top_k}: {report['section_hit_at_k']:.3f}")
+        typer.echo(f"Section MRR: {report['section_mrr']:.3f}")
     typer.echo(
         f"Correct abstention rate: {abstention:.3f}"
         if abstention is not None
         else "Correct abstention rate: N/A"
     )
+    typer.echo(
+        f"Answerable retrieval rate: {answerable_retrieval:.3f}"
+        if answerable_retrieval is not None
+        else "Answerable retrieval rate: N/A"
+    )
+    typer.echo(
+        f"False abstention rate: {false_abstention:.3f}"
+        if false_abstention is not None
+        else "False abstention rate: N/A"
+    )
+    false_abstention_cases = report["false_abstention_case_ids"]
+    if false_abstention_cases:
+        typer.echo("False-abstention cases: " + ", ".join(false_abstention_cases))
 
     generation_report = report.get("generation")
 

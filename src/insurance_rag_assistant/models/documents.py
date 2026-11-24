@@ -12,6 +12,8 @@ DocumentType = Literal[
     "exclusions_reference",
     "pricing_guide",
     "procedure",
+    "regulatory_guideline",
+    "legislation",
 ]
 
 

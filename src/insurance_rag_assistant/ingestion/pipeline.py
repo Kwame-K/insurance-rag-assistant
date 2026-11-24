@@ -8,7 +8,7 @@ from insurance_rag_assistant.ingestion.chunker import chunk_document
 from insurance_rag_assistant.ingestion.loaders import load_markdown_documents
 from insurance_rag_assistant.models.documents import DocumentChunk
 from insurance_rag_assistant.retrieval.embedder import MultilingualE5Embedder
-from insurance_rag_assistant.retrieval.vector_store import LocalQdrantVectorStore
+from insurance_rag_assistant.retrieval.factory import create_vector_store
 
 
 def ingest_markdown_corpus(
@@ -41,7 +41,7 @@ def ingest_markdown_corpus(
     embedder = MultilingualE5Embedder()
     embeddings = embedder.embed_passages([chunk.text for chunk in chunks])
 
-    vector_store = LocalQdrantVectorStore()
+    vector_store = create_vector_store()
 
     try:
         if recreate_collection:
