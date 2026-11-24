@@ -59,7 +59,12 @@ WHERE chunks.content_hash IS DISTINCT FROM EXCLUDED.content_hash
 
 _FILTERS = """
     d.status = 'active'
-    AND (%(coverage)s::text IS NULL OR d.coverage = %(coverage)s)
+    AND (
+        %(coverage)s::text IS NULL
+        OR d.coverage = %(coverage)s
+        OR d.coverage = 'multi_line'
+    )
+
     AND (%(jurisdiction)s::text IS NULL OR d.jurisdiction = %(jurisdiction)s)
     AND (%(language)s::text IS NULL OR d.language = %(language)s)
     AND (%(document_type)s::text IS NULL OR d.document_type = %(document_type)s)
