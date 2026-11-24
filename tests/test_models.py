@@ -25,19 +25,26 @@ def test_document_metadata_is_valid() -> None:
 
 
 def test_document_metadata_rejects_unknown_fields() -> None:
-    with pytest.raises(ValidationError):
-        DocumentMetadata(
-            document_id="commercial_property_policy_v1",
-            title="Commercial Property Policy",
-            document_type="policy_wording",
-            coverage="commercial_property",
-            jurisdiction="quebec",
-            language="en",
-            version="1.0",
-            effective_date=date(2026, 1, 1),
-            status="active",
-            unknown_field="invalid",
+    with pytest.raises(ValidationError) as exc_info:
+        DocumentMetadata.model_validate(
+            {
+                "document_id": "commercial_property_policy_v1",
+                "title": "Commercial Property Policy",
+                "document_type": "policy_wording",
+                "coverage": "commercial_property",
+                "jurisdiction": "quebec",
+                "language": "en",
+                "version": "1.0",
+                "effective_date": date(2026, 1, 1),
+                "status": "active",
+                "unknown_field": "invalid",
+            }
         )
+
+    assert any(
+        error["loc"] == ("unknown_field",) and error["type"] == "extra_forbidden"
+        for error in exc_info.value.errors()
+    )
 
 
 def test_search_query_uses_default_top_k() -> None:

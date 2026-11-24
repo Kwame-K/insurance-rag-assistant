@@ -21,10 +21,10 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 mcp = MCPServer("insurance-knowledge")
 
 _READ_ONLY = ToolAnnotations(
-    readOnlyHint=True,
-    destructiveHint=False,
-    idempotentHint=True,
-    openWorldHint=False,
+    read_only_hint=True,
+    destructive_hint=False,
+    idempotent_hint=True,
+    open_world_hint=False,
 )
 
 
@@ -40,7 +40,7 @@ def _filters(
         "language": language,
         "document_type": document_type,
     }
-    return SearchFilters(**{k: v for k, v in values.items() if v})
+    return SearchFilters.model_validate({k: v for k, v in values.items() if v})
 
 
 @mcp.tool(annotations=_READ_ONLY)

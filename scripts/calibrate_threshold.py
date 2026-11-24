@@ -8,6 +8,7 @@ import json
 import sys
 from itertools import pairwise
 from pathlib import Path
+from typing import TypedDict
 
 from insurance_rag_assistant.config import ARTIFACTS_DIR, EVALUATION_CASES_FILE
 from insurance_rag_assistant.evaluation.evaluator import load_evaluation_cases
@@ -28,10 +29,17 @@ def best_threshold(in_scores: list[float], out_scores: list[float]) -> dict[str,
     return best
 
 
+class CalibrationRow(TypedDict):
+    case_id: str
+    in_scope: bool
+    top1: float
+    margin: float
+
+
 def main() -> None:
     cases = load_evaluation_cases(EVALUATION_CASES_FILE)
     service = SemanticSearchService()
-    rows = []
+    rows: list[CalibrationRow] = []
     try:
         for case in cases:
             vector = service.embedder.embed_query(case.question)

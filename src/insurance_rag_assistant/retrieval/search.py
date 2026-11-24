@@ -11,7 +11,11 @@ from insurance_rag_assistant.retrieval.embedder import (
     MultilingualE5Embedder,
 )
 from insurance_rag_assistant.retrieval.factory import create_vector_store
-from insurance_rag_assistant.retrieval.protocols import Reranker, VectorStore
+from insurance_rag_assistant.retrieval.protocols import (
+    QueryEmbedder,
+    Reranker,
+    SearchVectorStore,
+)
 
 
 class SemanticSearchService:
@@ -19,8 +23,8 @@ class SemanticSearchService:
 
     def __init__(
         self,
-        embedder: MultilingualE5Embedder | None = None,
-        vector_store: VectorStore | None = None,
+        embedder: QueryEmbedder | None = None,
+        vector_store: SearchVectorStore | None = None,
         min_retrieval_score: float = MIN_RETRIEVAL_SCORE,
         abstention_score: float = ABSTENTION_TOP_SCORE,
         reranker: Reranker | None = None,
