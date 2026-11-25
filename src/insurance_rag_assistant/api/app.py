@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from insurance_rag_assistant.api.ask import router as ask_router
 from insurance_rag_assistant.api.routes import router
 
 app = FastAPI(
@@ -12,3 +13,4 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.include_router(ask_router)

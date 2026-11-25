@@ -35,7 +35,7 @@ Section-aware chunking → E5 embeddings → Qdrant or pgvector
 Dense retrieval → optional lexical fusion → optional reranking and abstention
     ├→ CLI search
     ├→ FastAPI evidence retrieval / MCP retrieval
-    └→ CLI ask → Groq → citation validation
+    └→ CLI ask / FastAPI POST /v1/ask  → Groq → citation validation
 ```
 
 See [System Architecture](docs/architecture/system-architecture.md).
@@ -183,6 +183,7 @@ Add `--with-generation` to include grounding and citation checks with Groq.
 
 ## FastAPI Service
 
+
 ```bash
 uv run uvicorn insurance_rag_assistant.api.app:app --reload --port 8001
 ```
@@ -192,6 +193,36 @@ uv run uvicorn insurance_rag_assistant.api.app:app --reload --port 8001
 | GET | `/health` | Service liveness |
 | POST | `/v1/retrieve-evidence` | Return passages and citations without an LLM call |
 | GET | `/docs` | Interactive OpenAPI documentation |
+| POST | `/v1/ask` | Generate an answer from retrieved passages and validate its citations |
+
+### Ask a question with citations
+
+`POST /v1/ask` retrieves relevant passages and uses Groq to generate an answer.
+The service checks that returned citations point to retrieved chunks and that
+their quotes appear in the cited passages. `POST /v1/retrieve-evidence` remains
+available for retrieval without generation.
+
+```bash
+curl -fsS http://127.0.0.1:8001/v1/ask \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "question": "Is water damage caused by a sudden plumbing leak covered under the commercial property policy?",
+    "top_k": 5,
+    "filters": {
+      "coverage": "commercial_property",
+      "language": "en"
+    }
+  }'
+```
+
+- `top_k` controls how many passages may be retrieved, not how many citations
+  the answer will contain.
+- If no passage meets the relevance threshold, the API returns HTTP 200 with
+  `grounded: false` and does not call Groq.
+- Generation requires `GROQ_API_KEY` on the Knowledge Agent. A missing key
+  returns HTTP 503 when generation is needed; a provider or response validation
+  failure returns HTTP 502.
+
 
 ```bash
 curl -X POST http://127.0.0.1:8001/v1/retrieve-evidence \
